@@ -51,8 +51,8 @@ Pre-entrega-1/
 ### 1. Clonar el repositorio
 
 ```bash
-git clone URL_DEL_REPOSITORIO
-cd Pre-entrega-1
+git clone https://github.com/Facundo-Rainaudi/curso-ai-engineering.git
+cd curso-ai-engineering/Pre-entrega-1
 ```
 
 ### 2. Crear un entorno virtual

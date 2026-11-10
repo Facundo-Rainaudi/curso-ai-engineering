@@ -18,3 +18,7 @@ class LLMConfig(BaseModel):
     model: str = Field(
         min_length=1 #longitud minima de 1
     )
+
+class LLMError(BaseModel):
+    type: str
+    message: str

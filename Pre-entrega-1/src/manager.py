@@ -9,7 +9,7 @@ from anthropic import AsyncAnthropic
 #Traemos la funcion get_provider_config desde el archivo config.py
 from src.config import get_provider_config
 #Traemos la clase LLMConfig desde el archivo schemas.py
-from src.schemas import LLMConfig
+from src.schemas import LLMConfig, LLMError
 
 
 class AsyncLLMManager:
@@ -85,14 +85,27 @@ class AsyncLLMManager:
                             if fragmento:
                                 yield fragmento    
             
-        except (openai.RateLimitError, anthropic.RateLimitError):
-            yield "Error: se supero el limite de solicitudes de la API. Por favor, intente nuevamente mas tarde."
         
+        except (openai.RateLimitError, anthropic.RateLimitError):
+            yield LLMError(
+                type="rate_limit",
+                message="Se superó el límite de solicitudes de la API. Intente nuevamente más tarde."
+            )
+
         except (openai.APIConnectionError, anthropic.APIConnectionError):
-            yield "Error: no se pudo establecer conexion con el proveedor de IA."
+            yield LLMError(
+                type="connection",
+                message="No se pudo establecer conexión con el proveedor de IA."
+            )
 
         except TimeoutError:
-            yield "Error: se supero el tiempo maximo de espera"
-        
+            yield LLMError(
+                type="timeout",
+                message="Se superó el tiempo máximo de espera."
+            )
+
         except (openai.APIError, anthropic.APIError) as e:
-            yield f"Error de API: {str(e)}"
+            yield LLMError(
+                type="api_error",
+                message=str(e)
+            )

@@ -24,7 +24,15 @@ def get_provider_config():
     if not api_key or api_key.startswith("tu_api_key"):
         raise ValueError(f"Falta configurar la API key para {provider}")
 
+    #Obtenemos el modelo seleccionado desde las variables de entorno
+    model = os.getenv("LLM_MODEL")
+
+    #Validamos q el modelo no este vacio
+    if not model:
+        raise ValueError("Falta configurar el modelo en LLM_MODEL")
+
     return {
         "provider": provider,
-        "api_key": api_key
+        "api_key": api_key,
+        "model": model
     }

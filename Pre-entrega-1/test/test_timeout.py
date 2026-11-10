@@ -1,7 +1,7 @@
 import asyncio
 
 from src.manager import AsyncLLMManager
-from src.schemas import LLMConfig
+from src.schemas import LLMConfig, LLMError
 
 
 async def test_timeout():
@@ -21,8 +21,12 @@ async def test_timeout():
 
     print("Iniciando prueba de timeout...")
 
-    async for fragmento in manager.generate("Hola"):
-        print(fragmento)
+    
+    async for resultado in manager.generate("Hola"):
+        if isinstance(resultado, LLMError):
+            print(f"Tipo: {resultado.type}")
+            print(f"Mensaje: {resultado.message}")
+
 
 
 asyncio.run(test_timeout())

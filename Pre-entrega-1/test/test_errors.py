@@ -1,10 +1,10 @@
 
 import asyncio
 import openai
-import httpx2
+import httpx2 as httpx
 
 from src.manager import AsyncLLMManager
-from src.schemas import LLMConfig
+from src.schemas import LLMConfig, LLMError
 
 
 async def test_api_error():
@@ -19,9 +19,9 @@ async def test_api_error():
     async def mock_generate(*args, **kwargs):
         raise openai.NotFoundError(
             message="Model not found",
-            response=httpx2.Response(
+            response=httpx.Response(
                 status_code=404,
-                request=httpx2.Request(
+                request=httpx.Request(
                     "POST",
                     "https://api.openai.com"
                 )
@@ -33,7 +33,9 @@ async def test_api_error():
 
     print("Prueba de error general de API:")
 
-    async for fragmento in manager.generate("Hola"):
-        print(fragmento)
+    async for resultado in manager.generate("Hola"):
+            if isinstance(resultado, LLMError):
+                print(f"Tipo: {resultado.type}")
+                print(f"Mensaje: {resultado.message}")
 
 asyncio.run(test_api_error())

@@ -10,6 +10,9 @@ from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 #Es una herramienta de LangChain q nos permite crear prompts de chat reutilizables y estructurados
 from langchain_core.prompts import ChatPromptTemplate
+#Es la clase q nos permite crear un controlador de eventos.
+#Con esto vamos a detectar cada reintento y registrarlo en los logs
+from langchain_core.callbacks import BaseCallbackHandler
 
 from schemas import EntidadTecnica
 
@@ -94,6 +97,22 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+class RetryLogger(BaseCallbackHandler):
+
+    def on_chain_start(self, serialized, inputs, **kwargs):
+        run_id = kwargs.get("run_id")
+
+        if run_id:
+            tags = kwargs.get("tags", [])
+
+            for tag in tags:
+                if tag.startswith("retry:attempt:"):
+                    intento = tag.split(":")[-1]
+
+                    logger.warning(
+                        "Reintentando ejecución. Intento: %s",
+                        intento
+                    )
 
 #Esta funcion recibe un texto como entrada, lo procesa a traves de la cadena y 
 # devuelve un objeto 'EntidadTecnica' con la informacion extraida y validada
@@ -108,7 +127,10 @@ async def process_text(text: str) -> EntidadTecnica:
     
     try:
         #Ejecutamos la cadena de forma asincrona
-        resultado = await chain.ainvoke({"texto": text})
+        resultado = await chain.ainvoke(
+            {"texto": text},
+            config={"callbacks": [RetryLogger()]}
+        )
 
         logger.info("Procesamiento y validación completados correctamente")
 

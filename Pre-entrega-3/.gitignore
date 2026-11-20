@@ -1,0 +1,16 @@
+# Entorno virtual
+.venv/
+
+# Secretos
+.env
+
+# Base vectorial generada localmente
+vectorstore/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# macOS
+.DS_Store
